@@ -1,0 +1,93 @@
+// SQLite dev schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL_SQLITE")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String
+  name          String?
+  age           Int?
+  gender        String?
+  weight        Float?
+  height        Float?
+  activityLevel String?
+  goal          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  meals         Meal[]
+  exercises     Exercise[]
+  weights       WeightEntry[]
+  favorites     Favorite[]
+}
+
+model Food {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  calories  Int
+  protein   Int
+  carbs     Int
+  fat       Int
+  createdAt DateTime @default(now())
+  mealItems MealItem[]
+  favorites Favorite[]
+}
+
+model Favorite {
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  food   Food   @relation(fields: [foodId], references: [id])
+  foodId String
+  @@unique([userId, foodId])
+}
+
+model Meal {
+  id        String    @id @default(uuid())
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String
+  date      DateTime
+  type      String
+  items     MealItem[]
+  createdAt DateTime  @default(now())
+
+  @@unique([userId, date, type])
+}
+
+model MealItem {
+  id       String  @id @default(uuid())
+  meal     Meal    @relation(fields: [mealId], references: [id])
+  mealId   String
+  food     Food    @relation(fields: [foodId], references: [id])
+  foodId   String
+  quantity Int     @default(1)
+}
+
+model Exercise {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  date      DateTime
+  type      String
+  duration  Int
+  calories  Int
+  createdAt DateTime @default(now())
+}
+
+model WeightEntry {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  date      DateTime
+  weight    Float
+  createdAt DateTime @default(now())
+}
+
+
+

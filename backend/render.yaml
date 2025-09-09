@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: calorie-tracker-backend
+    env: node
+    plan: free
+    region: oregon
+    runtime: node
+    buildCommand: npm ci && npm run build
+    startCommand: node dist/index.js
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase: true
+        name: calorie-tracker-db
+        property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: vercel.app
+databases:
+  - name: calorie-tracker-db
+    plan: free
+

@@ -1,0 +1,13 @@
+.DS_Store
+.env
+*.local
+node_modules/
+frontend/.next/
+frontend/out/
+frontend/.vercel/
+backend/dist/
+backend/node_modules/
+backend/prisma/dev.db
+backend/generated/
+*.log
+*.tsbuildinfo
