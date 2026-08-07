@@ -6,7 +6,19 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "node --conditions=react-server --import tsx --test tests/unit/*.test.ts",
+    "test:e2e": "playwright test",
+    "test": "npm run typecheck && npm run test:unit",
+    "seed": "node --conditions=react-server --import tsx prisma/seed.ts",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio",
+    "verify:isolation": "node --conditions=react-server --import tsx scripts/verify-isolation.ts",
+    "worker": "node --conditions=react-server --import tsx scripts/worker.ts",
+    "postinstall": "prisma generate",
+    "dev:session": "node --conditions=react-server --import tsx scripts/dev-session.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",

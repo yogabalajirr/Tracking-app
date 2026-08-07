@@ -1,9 +1,7 @@
 import { z } from "zod";
 import { badRequest, forbidden, json, notFound, parseBody, withAuth } from "@/lib/api";
-import { prisma } from "@/lib/db";
-import { workspaceClock, slaView } from "@/lib/sla";
+import { loadTicketDetail } from "@/lib/ticket-detail";
 import { updateTicket } from "@/lib/tickets";
-import { portalUrl } from "@/lib/tokens";
 import { can } from "@/lib/rbac";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -11,59 +9,11 @@ type Ctx = { params: Promise<{ id: string }> };
 /** GET /api/tickets/:id — full ticket with thread and activity log. */
 export const GET = withAuth<Ctx>(
   "tickets.read",
-  async (_req, { db, workspaceId }, { params }) => {
+  async (_req, { workspaceId }, { params }) => {
     const { id } = await params;
-
-    const ticket = await db.ticket.findUnique({
-      where: { id },
-      include: {
-        customer: true,
-        assignee: { select: { id: true, name: true, email: true, avatarUrl: true } },
-        team: { select: { id: true, name: true } },
-        tags: { select: { id: true, name: true, color: true } },
-        messages: {
-          orderBy: { createdAt: "asc" },
-          include: { attachments: true },
-        },
-        activities: { orderBy: { createdAt: "asc" } },
-      },
-    });
-
+    const ticket = await loadTicketDetail(workspaceId, id);
     if (!ticket) throw notFound("That ticket doesn't exist.");
-
-    const workspace = await prisma.workspace.findUniqueOrThrow({
-      where: { id: workspaceId },
-      select: { timezone: true, businessHours: true, slaPolicies: true },
-    });
-
-    const clock = workspaceClock(workspace);
-    const policy =
-      workspace.slaPolicies.find((p) => p.priority === ticket.priority) ?? null;
-    const sla = slaView(ticket, policy, clock);
-
-    // How many other tickets this customer has raised — useful context in the
-    // right-hand pane.
-    const customerTicketCount = await db.ticket.count({
-      where: { customerId: ticket.customerId },
-    });
-
-    return json({
-      ticket: {
-        ...ticket,
-        sla: {
-          state: sla.state,
-          label: sla.label,
-          kind: sla.kind,
-          dueAt: sla.dueAt,
-          progress: sla.progress,
-          remainingMs: sla.remainingMs,
-        },
-        portalUrl: portalUrl(ticket.id),
-        customerTicketCount,
-      },
-      slaPolicy: policy,
-      timezone: workspace.timezone,
-    });
+    return json({ ticket });
   },
 );
 
@@ -101,7 +51,7 @@ export const PATCH = withAuth<Ctx>(
       if (!team) throw badRequest("That team does not exist in this workspace.");
     }
 
-    const ticket = await updateTicket({
+    await updateTicket({
       workspaceId,
       ticketId: id,
       patch: {
@@ -114,6 +64,9 @@ export const PATCH = withAuth<Ctx>(
       actor: { id: user.id, name: user.name, role: user.role },
     });
 
+    // Return the refreshed detail so the client can replace its state wholesale
+    // rather than patching it field by field.
+    const ticket = await loadTicketDetail(workspaceId, id);
     return json({ ticket });
   },
 );
