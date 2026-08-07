@@ -1,0 +1,214 @@
+@import "tailwindcss";
+
+/*
+ * Dark mode is class-driven (`<html class="dark">`) rather than
+ * media-query-driven, so the in-app theme toggle can override the OS setting.
+ * ThemeScript in layout.tsx sets the class before first paint.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: oklch(0.99 0.002 250);
+  --foreground: oklch(0.21 0.02 260);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.02 260);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.02 260);
+
+  --primary: oklch(0.52 0.21 274);
+  --primary-foreground: oklch(0.99 0.005 250);
+
+  --secondary: oklch(0.96 0.005 260);
+  --secondary-foreground: oklch(0.29 0.02 260);
+
+  --muted: oklch(0.96 0.005 260);
+  --muted-foreground: oklch(0.53 0.015 260);
+
+  --accent: oklch(0.95 0.01 265);
+  --accent-foreground: oklch(0.29 0.02 260);
+
+  --destructive: oklch(0.58 0.21 27);
+  --destructive-foreground: oklch(0.99 0.005 250);
+
+  --success: oklch(0.62 0.15 155);
+  --success-foreground: oklch(0.99 0.005 250);
+
+  --warning: oklch(0.72 0.16 70);
+  --warning-foreground: oklch(0.25 0.03 70);
+
+  --border: oklch(0.92 0.006 260);
+  --input: oklch(0.92 0.006 260);
+  --ring: oklch(0.52 0.21 274);
+
+  /* Internal notes read as "not sent to the customer" at a glance. */
+  --note: oklch(0.97 0.05 95);
+  --note-border: oklch(0.85 0.09 90);
+  --note-foreground: oklch(0.35 0.06 75);
+
+  --radius: 0.625rem;
+}
+
+.dark {
+  --background: oklch(0.17 0.012 265);
+  --foreground: oklch(0.95 0.005 260);
+
+  --card: oklch(0.21 0.014 265);
+  --card-foreground: oklch(0.95 0.005 260);
+
+  --popover: oklch(0.22 0.015 265);
+  --popover-foreground: oklch(0.95 0.005 260);
+
+  --primary: oklch(0.68 0.17 276);
+  --primary-foreground: oklch(0.17 0.012 265);
+
+  --secondary: oklch(0.27 0.016 265);
+  --secondary-foreground: oklch(0.93 0.005 260);
+
+  --muted: oklch(0.26 0.014 265);
+  --muted-foreground: oklch(0.68 0.015 260);
+
+  --accent: oklch(0.30 0.02 265);
+  --accent-foreground: oklch(0.95 0.005 260);
+
+  --destructive: oklch(0.63 0.19 25);
+  --destructive-foreground: oklch(0.15 0.01 265);
+
+  --success: oklch(0.68 0.14 155);
+  --success-foreground: oklch(0.15 0.01 265);
+
+  --warning: oklch(0.76 0.15 72);
+  --warning-foreground: oklch(0.18 0.02 70);
+
+  --border: oklch(0.30 0.016 265);
+  --input: oklch(0.32 0.016 265);
+  --ring: oklch(0.68 0.17 276);
+
+  --note: oklch(0.28 0.045 85);
+  --note-border: oklch(0.40 0.07 85);
+  --note-foreground: oklch(0.88 0.07 90);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-note: var(--note);
+  --color-note-border: var(--note-border);
+  --color-note-foreground: var(--note-foreground);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* WCAG AA: a visible, consistent focus ring on every interactive element. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklch, var(--primary) 25%, transparent);
+  }
+}
+
+@layer utilities {
+  /* Visible only to screen readers. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--muted) 25%,
+      color-mix(in oklch, var(--muted) 60%, var(--background)) 50%,
+      var(--muted) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+
+  @keyframes skeleton-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Thin, unobtrusive scrollbars for the dense inbox panes. */
+  .scroll-slim {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .scroll-slim::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scroll-slim::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 4px;
+  }
+  .scroll-slim::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
