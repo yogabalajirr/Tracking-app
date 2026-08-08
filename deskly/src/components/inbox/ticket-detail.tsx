@@ -206,6 +206,8 @@ export function TicketDetailView({
           currentUser={currentUser}
           onPatch={patch}
           readOnly={!writable}
+          aiEnabled={aiEnabled}
+          onRefresh={refresh}
         />
       </aside>
     </div>

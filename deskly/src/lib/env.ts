@@ -37,7 +37,7 @@ const schema = z.object({
   S3_ENDPOINT: z.string().optional(),
 
   ANTHROPIC_API_KEY: z.string().optional(),
-  ANTHROPIC_MODEL: z.string().default("claude-sonnet-5"),
+  ANTHROPIC_MODEL: z.string().default("claude-opus-5"),
 
   SENTRY_DSN: z.string().optional(),
 

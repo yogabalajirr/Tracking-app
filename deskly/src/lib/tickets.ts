@@ -391,6 +391,15 @@ export async function createTicket(input: CreateTicketInput) {
     number: ticket.number,
   });
 
+  // Auto-triage runs after the response, never in front of it. Imported lazily
+  // so the Anthropic SDK is never loaded on installs that have no API key —
+  // and so this module keeps no import cycle with `ai-triage`.
+  if (!input.skipRules) {
+    void import("./ai-triage")
+      .then((m) => m.triageInBackground(input.workspaceId, ticket.id))
+      .catch((err) => console.error("[ai] could not start triage", err));
+  }
+
   return ticket;
 }
 

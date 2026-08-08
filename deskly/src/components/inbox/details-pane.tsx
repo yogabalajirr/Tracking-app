@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Check, Copy, ExternalLink, Mail, Plus, Tag as TagIcon, X } from "lucide-react";
+import { Check, Copy, ExternalLink, Mail, Plus, Sparkles, Tag as TagIcon, X } from "lucide-react";
+import { toast } from "sonner";
 import { Avatar, Badge, Separator } from "@/components/ui/primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,16 +27,53 @@ export function DetailsPane({
   currentUser,
   onPatch,
   readOnly,
+  aiEnabled,
+  onRefresh,
 }: {
   ticket: TicketDetail;
   meta: WorkspaceMeta;
   currentUser: CurrentUser;
   onPatch: (body: Record<string, unknown>) => void | Promise<void>;
   readOnly: boolean;
+  aiEnabled: boolean;
+  onRefresh: () => void | Promise<void>;
 }) {
   const [tagging, setTagging] = React.useState(false);
   const [tagDraft, setTagDraft] = React.useState("");
   const [copied, setCopied] = React.useState(false);
+  const [triaging, setTriaging] = React.useState(false);
+
+  /**
+   * Re-classify on demand. Priority is left alone unless the agent explicitly
+   * opts in elsewhere — a sidebar button should not silently escalate a ticket.
+   */
+  async function triage() {
+    setTriaging(true);
+    try {
+      const res = await fetch("/api/ai/auto-tag", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticketId: ticket.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Couldn't classify this ticket.");
+
+      if (!data.applied) {
+        toast.message(data.reason ?? "No confident category for this one.");
+      } else {
+        toast.success(
+          data.suggestedPriority === ticket.priority
+            ? `Classified as ${data.category}.`
+            : `Classified as ${data.category} — suggests ${PRIORITY_LABELS[data.suggestedPriority as keyof typeof PRIORITY_LABELS]} priority.`,
+        );
+      }
+      await onRefresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't classify this ticket.");
+    } finally {
+      setTriaging(false);
+    }
+  }
 
   const assigneeRef = React.useRef<HTMLSelectElement>(null);
   const tagButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -310,7 +348,25 @@ export function DetailsPane({
             <RelativeTime value={ticket.resolvedAt} />
           </Row>
         )}
-        {ticket.aiCategory && <Row label="AI category">{ticket.aiCategory}</Row>}
+        {aiEnabled && !readOnly ? (
+          <Row label="AI category">
+            <span className="flex items-center justify-end gap-1">
+              {ticket.aiCategory ?? <span className="font-normal text-muted-foreground">—</span>}
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                loading={triaging}
+                onClick={() => void triage()}
+                aria-label="Re-run AI triage"
+                title="Re-run AI triage"
+              >
+                <Sparkles />
+              </Button>
+            </span>
+          </Row>
+        ) : (
+          ticket.aiCategory && <Row label="AI category">{ticket.aiCategory}</Row>
+        )}
       </section>
 
       <Separator />

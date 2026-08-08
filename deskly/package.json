@@ -22,7 +22,8 @@
     "simulate:email": "node --conditions=react-server --import tsx scripts/simulate-inbound.ts",
     "verify:sla": "node --conditions=react-server --import tsx scripts/verify-sla.ts",
     "verify:routing": "node --conditions=react-server --import tsx scripts/verify-routing.ts",
-    "verify": "npm run verify:isolation && npm run verify:sla && npm run verify:routing"
+    "verify": "npm run verify:isolation && npm run verify:sla && npm run verify:routing && npm run verify:ai",
+    "verify:ai": "node --conditions=react-server --import tsx scripts/verify-ai.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
