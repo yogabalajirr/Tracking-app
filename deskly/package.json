@@ -19,7 +19,10 @@
     "worker": "node --conditions=react-server --import tsx scripts/worker.ts",
     "postinstall": "prisma generate",
     "dev:session": "node --conditions=react-server --import tsx scripts/dev-session.ts",
-    "simulate:email": "node --conditions=react-server --import tsx scripts/simulate-inbound.ts"
+    "simulate:email": "node --conditions=react-server --import tsx scripts/simulate-inbound.ts",
+    "verify:sla": "node --conditions=react-server --import tsx scripts/verify-sla.ts",
+    "verify:routing": "node --conditions=react-server --import tsx scripts/verify-routing.ts",
+    "verify": "npm run verify:isolation && npm run verify:sla && npm run verify:routing"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
