@@ -41,8 +41,13 @@ export function TicketDetailView({
   const composerRef = React.useRef<HTMLTextAreaElement>(null);
   const threadEndRef = React.useRef<HTMLDivElement>(null);
 
-  // Replace state when the route changes to a different ticket.
-  React.useEffect(() => setTicket(initialTicket), [initialTicket]);
+  // Replace state when the route changes to a different ticket. Done during
+  // render so the previous ticket never flashes in the new route.
+  const [loadedTicket, setLoadedTicket] = React.useState(initialTicket);
+  if (loadedTicket !== initialTicket) {
+    setLoadedTicket(initialTicket);
+    setTicket(initialTicket);
+  }
 
   const writable = can(currentUser.role, "tickets.write");
 

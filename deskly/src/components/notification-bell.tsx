@@ -37,7 +37,11 @@ export function NotificationBell() {
     }
   }, []);
 
+  // Fetching on mount — and again whenever the query changes — is what an effect
+  // is for. The lint rule below can't see that every setState happens after an
+  // await, in the promise continuation rather than in the effect body itself.
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
 

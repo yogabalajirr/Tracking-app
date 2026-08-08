@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState, useSyncExternalStore } from "react";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
@@ -11,23 +11,33 @@ import { env as publicEnv } from "@/lib/public-env";
 
 const initial: FormState = {};
 
+/** Used when the browser will not tell us — and on the server, where nobody asked. */
+const FALLBACK_TIMEZONE = "Asia/Kolkata";
+
+/** The browser's zone never changes mid-session, so there is nothing to watch. */
+const subscribeNothing = () => () => {};
+
+function readBrowserTimezone(): string {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone || FALLBACK_TIMEZONE;
+}
+
 export function SignupForm() {
   const [state, action, pending] = useActionState(signupAction, initial);
   const [workspaceName, setWorkspaceName] = useState("");
-  const [subdomain, setSubdomain] = useState("");
-  const [subdomainTouched, setSubdomainTouched] = useState(false);
-  const [timezone, setTimezone] = useState("Asia/Kolkata");
+  const [subdomainEdit, setSubdomainEdit] = useState<string | null>(null);
 
-  // Mirror the workspace name into the subdomain until the user edits it.
-  useEffect(() => {
-    if (!subdomainTouched) setSubdomain(suggestSubdomain(workspaceName));
-  }, [workspaceName, subdomainTouched]);
+  // The subdomain mirrors the workspace name until the user types their own —
+  // derived rather than mirrored into state, so the two can never drift.
+  const subdomain = subdomainEdit ?? suggestSubdomain(workspaceName);
 
-  // Default to the browser's timezone when we can detect it.
-  useEffect(() => {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (tz) setTimezone(tz);
-  }, []);
+  // The browser's timezone is external state, so it is read through a store
+  // with a server snapshot: the SSR pass and hydration agree on the fallback,
+  // then the real zone takes over. It is changeable later in settings.
+  const timezone = useSyncExternalStore(
+    subscribeNothing,
+    readBrowserTimezone,
+    () => FALLBACK_TIMEZONE,
+  );
 
   const fieldError = (name: string) => state.fieldErrors?.[name] ?? null;
 
@@ -101,8 +111,7 @@ export function SignupForm() {
               name="subdomain"
               value={subdomain}
               onChange={(e) => {
-                setSubdomainTouched(true);
-                setSubdomain(e.target.value);
+                setSubdomainEdit(e.target.value);
               }}
               placeholder="acme"
               required

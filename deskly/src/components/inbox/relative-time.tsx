@@ -21,11 +21,52 @@ function relative(from: number, to: number): string {
 }
 
 /**
+ * One clock for the whole page.
+ *
+ * A busy inbox can render a hundred of these; each running its own interval
+ * would mean a hundred timers ticking out of phase. Instead they all subscribe
+ * to a single store that ticks once a minute and stops when the last one
+ * unmounts.
+ */
+let clock = 0;
+const clockListeners = new Set<() => void>();
+let timer: ReturnType<typeof setInterval> | null = null;
+
+function subscribeClock(listener: () => void): () => void {
+  clockListeners.add(listener);
+
+  if (timer === null) {
+    clock = Date.now();
+    timer = setInterval(() => {
+      clock = Date.now();
+      for (const l of clockListeners) l();
+    }, 60_000);
+  }
+
+  return () => {
+    clockListeners.delete(listener);
+    if (clockListeners.size === 0 && timer !== null) {
+      clearInterval(timer);
+      timer = null;
+    }
+  };
+}
+
+function readClock(): number {
+  // Cached between calls so repeated reads in one render agree with each other.
+  return clock || (clock = Date.now());
+}
+
+/** On the server there is no "now" worth committing to — see below. */
+const serverClock = () => 0;
+
+/**
  * Renders "3h ago" and keeps it fresh.
  *
- * The first client render must match the server's HTML, so the absolute
- * timestamp is rendered until after hydration — otherwise every list row would
- * log a hydration mismatch as the clock moves between render and paint.
+ * The first client render must match the server's HTML, so the absolute date is
+ * rendered until hydration finishes — otherwise every list row would log a
+ * hydration mismatch as the clock moves between render and paint. That is what
+ * the `0` server snapshot buys.
  */
 export function RelativeTime({
   value,
@@ -35,19 +76,13 @@ export function RelativeTime({
   className?: string;
 }) {
   const date = React.useMemo(() => new Date(value), [value]);
-  const [now, setNow] = React.useState<number | null>(null);
-
-  React.useEffect(() => {
-    setNow(Date.now());
-    const id = setInterval(() => setNow(Date.now()), 60_000);
-    return () => clearInterval(id);
-  }, []);
+  const now = React.useSyncExternalStore(subscribeClock, readClock, serverClock);
 
   const absolute = date.toLocaleString();
 
   return (
     <time dateTime={date.toISOString()} title={absolute} className={className}>
-      {now === null ? date.toLocaleDateString() : relative(date.getTime(), now)}
+      {now === 0 ? date.toLocaleDateString() : relative(date.getTime(), now)}
     </time>
   );
 }

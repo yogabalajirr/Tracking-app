@@ -43,8 +43,14 @@ export function AppShell({
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [helpOpen, setHelpOpen] = React.useState(false);
 
-  // Close the mobile drawer whenever the route changes.
-  React.useEffect(() => setMobileOpen(false), [pathname]);
+  // Close the mobile drawer whenever the route changes. Adjusted during
+  // render rather than in an effect, so the drawer never paints open on the
+  // new route for a frame.
+  const [drawerPath, setDrawerPath] = React.useState(pathname);
+  if (drawerPath !== pathname) {
+    setDrawerPath(pathname);
+    setMobileOpen(false);
+  }
 
   const links = NAV.filter((item) => can(user.role, item.permission));
 

@@ -55,7 +55,11 @@ export function DataSettings() {
     }
   }, []);
 
+  // Fetching on mount — and again whenever the query changes — is what an effect
+  // is for. The lint rule below can't see that every setState happens after an
+  // await, in the promise continuation rather than in the effect body itself.
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void load("");
   }, [load]);
 
@@ -65,10 +69,6 @@ export function DataSettings() {
     const id = setTimeout(() => void load(search), 300);
     return () => clearTimeout(id);
   }, [search, load]);
-
-  function exportCustomer(email: string) {
-    window.location.href = `/api/workspace/data?email=${encodeURIComponent(email)}`;
-  }
 
   async function erase() {
     if (!confirming || confirmText !== confirming.email) return;
@@ -149,12 +149,14 @@ export function DataSettings() {
                     </p>
                   </div>
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => exportCustomer(customer.email)}
-                  >
-                    <Download /> Export
+                  {/*
+                    A download endpoint, not a page — an anchor lets the browser
+                    honour Content-Disposition instead of navigating the app.
+                  */}
+                  <Button asChild variant="outline" size="sm">
+                    <a href={`/api/workspace/data?email=${encodeURIComponent(customer.email)}`}>
+                      <Download /> Export
+                    </a>
                   </Button>
 
                   <Button

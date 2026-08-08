@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { badRequest, conflict, forbidden, json, parseBody, withAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { hashToken, randomToken } from "@/lib/tokens";

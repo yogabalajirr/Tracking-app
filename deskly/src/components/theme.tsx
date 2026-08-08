@@ -35,13 +35,38 @@ const ThemeContext = React.createContext<{
   setTheme: (t: Theme) => void;
 }>({ theme: "system", setTheme: () => {} });
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = React.useState<Theme>("system");
+/**
+ * The stored preference lives in localStorage, which is external state shared
+ * with `themeScript` above and with every other tab — so it is *read* through
+ * useSyncExternalStore rather than copied into React state by an effect. That
+ * keeps the two in step and avoids a render pass that shows the wrong choice.
+ */
+const listeners = new Set<() => void>();
 
-  React.useEffect(() => {
-    const stored = (localStorage.getItem(STORAGE_KEY) as Theme | null) ?? "system";
-    setThemeState(stored);
-  }, []);
+function subscribeTheme(listener: () => void): () => void {
+  listeners.add(listener);
+  // `storage` fires only in *other* tabs; this tab is notified by setTheme.
+  window.addEventListener("storage", listener);
+  return () => {
+    listeners.delete(listener);
+    window.removeEventListener("storage", listener);
+  };
+}
+
+function readTheme(): Theme {
+  try {
+    return (localStorage.getItem(STORAGE_KEY) as Theme | null) ?? "system";
+  } catch {
+    // Private mode or blocked storage: behave as if nothing was ever chosen.
+    return "system";
+  }
+}
+
+/** On the server nothing has been chosen yet — matching what the HTML renders. */
+const serverTheme = (): Theme => "system";
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const theme = React.useSyncExternalStore(subscribeTheme, readTheme, serverTheme);
 
   // Follow the OS while the user has not made an explicit choice.
   React.useEffect(() => {
@@ -53,9 +78,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   const setTheme = React.useCallback((next: Theme) => {
-    setThemeState(next);
     localStorage.setItem(STORAGE_KEY, next);
     applyTheme(next);
+    for (const listener of listeners) listener();
   }, []);
 
   return (

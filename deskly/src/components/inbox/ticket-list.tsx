@@ -62,9 +62,13 @@ export function TicketList({
   const page = Number(searchParams.get("page") ?? "1");
   const [searchDraft, setSearchDraft] = React.useState(searchParams.get("q") ?? "");
 
-  React.useEffect(() => {
+  // The URL is the source of truth; re-sync the input when it changes under
+  // us (back button, a saved view, a cleared filter).
+  const [draftQuery, setDraftQuery] = React.useState(query);
+  if (draftQuery !== query) {
+    setDraftQuery(query);
     setSearchDraft(searchParams.get("q") ?? "");
-  }, [searchParams]);
+  }
 
   const load = React.useCallback(
     async (opts: { quiet?: boolean } = {}) => {
@@ -93,7 +97,11 @@ export function TicketList({
     [query],
   );
 
+  // Fetching on mount — and again whenever the query changes — is what an effect
+  // is for. The lint rule below can't see that every setState happens after an
+  // await, in the promise continuation rather than in the effect body itself.
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
 

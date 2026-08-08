@@ -66,7 +66,13 @@ export const Composer = React.forwardRef<
   const pickerOpen = macroMatches.length > 0 || mentionMatches.length > 0;
   const pickerLength = macroMatches.length || mentionMatches.length;
 
-  React.useEffect(() => setPickerIndex(0), [token]);
+  // A new token means a new list — highlight its first entry immediately,
+  // not one render later.
+  const [pickerToken, setPickerToken] = React.useState(token);
+  if (pickerToken !== token) {
+    setPickerToken(token);
+    setPickerIndex(0);
+  }
 
   function replaceToken(replacement: string) {
     const next = `${value.slice(0, start)}${replacement}${value.slice(caret)}`;
