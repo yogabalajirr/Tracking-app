@@ -46,8 +46,14 @@ export const POST = withPublic(
     const input = await parseBody(req, formSchema);
 
     // Silently accept honeypot hits so bots get no signal.
+    //
+    // The status has to match the real success path (201, not 200): a bot that
+    // sees a different code learns exactly which field is the trap and stops
+    // filling it in. The body is still thinner than a genuine response — we
+    // will not fabricate a ticket number to hide that — but nothing here tells
+    // a scripted submitter it was caught.
     if (input.website) {
-      return json({ ok: true }, { headers: CORS_HEADERS });
+      return json({ ok: true }, { status: 201, headers: CORS_HEADERS });
     }
 
     const workspace = await prisma.workspace.findUnique({
