@@ -139,9 +139,21 @@ test.describe("inbound email", () => {
       }),
     });
 
-    await page.goto(ticketUrl);
-    await expect(page.getByRole("button", { name: /^resolve$/i })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText("Actually it is still broken.", { exact: true })).toBeVisible();
+    /*
+     * Reload until the reopen lands rather than trusting a single snapshot.
+     * The webhook returns as soon as the message is stored, and the ticket
+     * update that follows can commit after the navigation has already
+     * rendered — a race that made this the one flaky test in the suite. Both
+     * assertions still have to hold, so a ticket that never reopens still
+     * fails.
+     */
+    await expect(async () => {
+      await page.goto(ticketUrl);
+      await expect(page.getByRole("button", { name: /^resolve$/i })).toBeVisible({ timeout: 3_000 });
+      await expect(page.getByText("Actually it is still broken.", { exact: true })).toBeVisible({
+        timeout: 3_000,
+      });
+    }).toPass({ timeout: 30_000 });
   });
 
   test("a stranger cannot inject into a ticket by guessing its number", async ({

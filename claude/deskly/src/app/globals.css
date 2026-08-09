@@ -258,6 +258,16 @@
 
   /* Thin, unobtrusive scrollbars for the dense inbox panes. */
   .scroll-slim {
+    /*
+     * `position: relative` is not cosmetic here. `.sr-only` is absolutely
+     * positioned, so without a positioned ancestor those 1px spans resolve
+     * against the initial containing block and escape this container's clip.
+     * Deep in a long queue that puts one of them hundreds of pixels below the
+     * fold, which makes the *document* scrollable even though the app shell is
+     * exactly viewport height — and then any scrollIntoView() drags the whole
+     * fixed-height layout up, leaving a blank band under it.
+     */
+    position: relative;
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
   }

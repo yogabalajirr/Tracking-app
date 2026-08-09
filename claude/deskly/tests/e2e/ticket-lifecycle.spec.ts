@@ -26,8 +26,11 @@ test.describe("ticket creation and the reply flow", () => {
     await composer.fill("Sorry about that — I've reset the payment method on your account.");
     await composer.press("Control+Enter");
 
+    // `exact` keeps this off the queue row's preview, which shows the same text.
     await expect(
-      page.getByText("Sorry about that — I've reset the payment method on your account."),
+      page.getByText("Sorry about that — I've reset the payment method on your account.", {
+        exact: true,
+      }),
     ).toBeVisible({ timeout: 15_000 });
 
     // An agent reply moves an open ticket to Pending: the ball is now with
@@ -58,7 +61,8 @@ test.describe("ticket creation and the reply flow", () => {
     await composer.fill(note);
     await composer.press("Control+Enter");
 
-    await expect(page.getByText(note)).toBeVisible({ timeout: 15_000 });
+    // Exact, for the same reason: the queue row may preview this text too.
+    await expect(page.getByText(note, { exact: true })).toBeVisible({ timeout: 15_000 });
 
     // The whole point of a note is that it is marked as not-sent-to-customer.
     await expect(page.getByText(/internal/i).first()).toBeVisible();
