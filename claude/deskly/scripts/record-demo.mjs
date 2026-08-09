@@ -23,6 +23,13 @@ const OWNER_EMAIL = process.env.DEMO_OWNER_EMAIL ?? "yogabalajirr@gmail.com";
 const OWNER_NAME = process.env.DEMO_OWNER_NAME ?? "yogabalaji";
 const SIZE = { width: 1440, height: 900 };
 
+/**
+ * Captions are the only thing this script adds to the picture. Set
+ * DEMO_CAPTIONS=off for a raw screen recording with no overlay — same
+ * walkthrough, same timing, nothing drawn on top.
+ */
+const CAPTIONS = process.env.DEMO_CAPTIONS !== "off";
+
 /** Slow enough to read, fast enough to watch. */
 const BEAT = 900;
 const READ = 2200;
@@ -47,6 +54,9 @@ const context = await browser.newContext({
 
 const page = await context.newPage();
 
+/** Set in the finally block, read after the context closes. */
+let video = null;
+
 /**
  * The caption bar.
  *
@@ -56,6 +66,7 @@ const page = await context.newPage();
  */
 async function caption(title, detail = "") {
   await page.evaluate(() => window.scrollTo(0, 0));
+  if (!CAPTIONS) return;
   await page.evaluate(
     ([t, d]) => {
       let bar = document.getElementById("__demo_caption");
@@ -274,22 +285,32 @@ try {
   await caption("Deskly", "Next.js 16 · React 19 · PostgreSQL · Prisma · Electron for macOS");
   await pause(3000);
 } finally {
+  /*
+   * Order matters. Closing the context finalises the file, but saveAs() still
+   * talks to the browser — so the browser is closed after the save, not here.
+   */
+  video = page.video();
   await context.close();
+}
+
+/*
+ * Playwright names the file after the page's GUID, so give it a real one.
+ * Asking the video object where it went beats picking the newest .webm in the
+ * directory — that heuristic happily renames a previous take.
+ */
+const target = path.join(
+  OUT,
+  CAPTIONS ? "deskly-walkthrough.webm" : "deskly-walkthrough-raw.webm",
+);
+
+if (!video) {
   await browser.close();
+  console.error("No video was captured.");
+  process.exit(1);
 }
 
-// Playwright names the file after the page's GUID; give it a real name.
-const files = (await fs.readdir(OUT)).filter((f) => f.endsWith(".webm"));
-const newest = (
-  await Promise.all(
-    files.map(async (f) => ({ f, t: (await fs.stat(path.join(OUT, f))).mtimeMs })),
-  )
-).sort((a, b) => b.t - a.t)[0];
+await video.saveAs(target);
+await video.delete();
+await browser.close();
 
-if (newest) {
-  const target = path.join(OUT, "deskly-walkthrough.webm");
-  if (path.join(OUT, newest.f) !== target) {
-    await fs.rename(path.join(OUT, newest.f), target);
-  }
-  console.log(`\nRecorded ${target}`);
-}
+console.log(`\nRecorded ${target}`);
