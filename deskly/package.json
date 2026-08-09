@@ -2,6 +2,12 @@
   "name": "deskly",
   "version": "0.1.0",
   "private": true,
+  "description": "Customer support ticketing that a small team can run on day one.",
+  "author": {
+    "name": "Deskly"
+  },
+  "license": "MIT",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,7 +16,7 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "node --conditions=react-server --import tsx --test tests/unit/*.test.ts",
     "test:e2e": "playwright test",
-    "test": "npm run typecheck && npm run test:unit",
+    "test": "npm run typecheck && npm run test:unit && npm run test:electron",
     "seed": "node --conditions=react-server --import tsx prisma/seed.ts",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
@@ -23,7 +29,14 @@
     "verify:sla": "node --conditions=react-server --import tsx scripts/verify-sla.ts",
     "verify:routing": "node --conditions=react-server --import tsx scripts/verify-routing.ts",
     "verify": "npm run verify:isolation && npm run verify:sla && npm run verify:routing && npm run verify:ai",
-    "verify:ai": "node --conditions=react-server --import tsx scripts/verify-ai.ts"
+    "verify:ai": "node --conditions=react-server --import tsx scripts/verify-ai.ts",
+    "build:desktop": "npm run build && node scripts/build-desktop.mjs",
+    "electron": "electron electron/main.js",
+    "desktop": "npm run build:desktop && npm run electron",
+    "dist:mac": "npm run build:desktop && electron-builder --mac",
+    "setup:mac": "bash scripts/mac-setup.sh",
+    "test:electron": "node --test tests/electron/*.test.mjs",
+    "icon": "node scripts/render-icon.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
@@ -72,11 +85,14 @@
     "@types/react-dom": "^19",
     "@types/sanitize-html": "^2.16.1",
     "dotenv": "^17.4.2",
+    "electron": "^43.3.0",
+    "electron-builder": "^26.15.3",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
     "prisma": "^7.9.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.11",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wait-on": "^9.1.0"
   }
 }

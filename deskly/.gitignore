@@ -17,9 +17,6 @@
 /.next/
 /out/
 
-# production
-/build
-
 # misc
 .DS_Store
 *.pem
@@ -45,9 +42,9 @@ yarn-error.log*
 /playwright-report
 /.playwright
 
-# electron build output
-/desktop/dist
-/desktop/out
+# electron build output (build/ itself holds the icon + entitlements, and is
+# committed — only the packaged .app/.dmg output is ignored)
+/dist
 
 # vercel
 .vercel

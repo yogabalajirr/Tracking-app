@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!--
+    Source of truth for the app icon. `npm run icon` rasterises this to
+    build/icon.png, which electron-builder converts to .icns at package time.
+
+    The mark is a conversation reduced to its two moving parts: an incoming
+    message and the reply beneath it. The notch on the left edge reads as a
+    ticket stub at small sizes, which is what a Dock icon usually is.
+  -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6f5bf0"/>
+      <stop offset="1" stop-color="#4632c9"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- macOS applies its own mask, but a rounded square keeps it honest in
+       any context that does not. -->
+  <rect x="0" y="0" width="1024" height="1024" rx="228" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1024" height="1024" rx="228" fill="url(#sheen)"/>
+
+  <!-- Incoming message: left-biased, tail pointing down-left -->
+  <path
+    d="M224 236 h448 a48 48 0 0 1 48 48 v224 a48 48 0 0 1 -48 48 h-300 l-96 84 v-84 h-52 a48 48 0 0 1 -48 -48 v-224 a48 48 0 0 1 48 -48 z"
+    fill="#ffffff" fill-opacity="0.97"/>
+
+  <!-- Two lines of text in it, unequal so it reads as writing, not a table -->
+  <rect x="248" y="330" width="376" height="36" rx="18" fill="#4632c9" fill-opacity="0.30"/>
+  <rect x="248" y="406" width="240" height="36" rx="18" fill="#4632c9" fill-opacity="0.30"/>
+
+  <!-- The reply: right-biased and recessive, tail pointing down-right, so the
+       two tails never meet and the pair reads as a back-and-forth -->
+  <path
+    d="M408 612 h400 a48 48 0 0 1 48 48 v124 a48 48 0 0 1 -48 48 h-84 v76 l-88 -76 h-228 a48 48 0 0 1 -48 -48 v-124 a48 48 0 0 1 48 -48 z"
+    fill="#ffffff" fill-opacity="0.58"/>
+</svg>

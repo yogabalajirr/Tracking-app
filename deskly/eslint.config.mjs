@@ -12,7 +12,18 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Packaged desktop output.
+    "dist/**",
   ]),
+  {
+    /**
+     * The Electron main and preload processes are CommonJS by requirement, not
+     * by preference: Electron loads `main` as CJS, and a sandboxed preload has
+     * no ESM loader at all. So `require` is the correct form here.
+     */
+    files: ["electron/**/*.js"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
 ]);
 
 export default eslintConfig;
