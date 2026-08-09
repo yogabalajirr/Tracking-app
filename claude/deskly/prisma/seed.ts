@@ -22,8 +22,15 @@ import type { Priority, TicketStatus } from "../src/generated/prisma/enums";
 const SUBDOMAIN = "acme";
 const PASSWORD = "deskly123";
 
+/**
+ * Whose account the demo workspace belongs to. Overridable so a fork can seed
+ * itself with its own owner instead of inheriting this one.
+ */
+const DEMO_OWNER_NAME = process.env.DEMO_OWNER_NAME ?? "yogabalaji";
+const DEMO_OWNER_EMAIL = process.env.DEMO_OWNER_EMAIL ?? "yogabalajirr@gmail.com";
+
 const AGENTS = [
-  { name: "Priya Sharma", email: "priya@acme.test", role: "OWNER" as const, team: "Tech support" },
+  { name: DEMO_OWNER_NAME, email: DEMO_OWNER_EMAIL, role: "OWNER" as const, team: "Tech support" },
   { name: "Arjun Mehta", email: "arjun@acme.test", role: "ADMIN" as const, team: "Billing" },
   { name: "Sara Iyer", email: "sara@acme.test", role: "AGENT" as const, team: "Tech support" },
 ];

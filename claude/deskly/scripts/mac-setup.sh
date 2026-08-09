@@ -147,5 +147,5 @@ echo "  npm run desktop    Build and launch the macOS app"
 echo "  npm run worker     Run SLA timers (npm run dev only; the desktop app"
 echo "                     starts its own)"
 echo
-echo "  Sign in as priya@acme.test / deskly123"
+echo "  Sign in as yogabalajirr@gmail.com / deskly123"
 echo

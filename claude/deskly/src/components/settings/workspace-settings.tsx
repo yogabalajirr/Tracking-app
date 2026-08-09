@@ -51,7 +51,7 @@ export function WorkspaceSettings({
   const editable = can(role, "workspace.manage");
 
   const [name, setName] = React.useState(workspace.name);
-  const [brandColor, setBrandColor] = React.useState(workspace.brandColor ?? "#4f46e5");
+  const [brandColor, setBrandColor] = React.useState(workspace.brandColor ?? "#1e1e1e");
   const [logoUrl, setLogoUrl] = React.useState(workspace.logoUrl ?? "");
   const [timezone, setTimezone] = React.useState(workspace.timezone);
   const [hours, setHours] = React.useState<BusinessHours>(workspace.businessHours);

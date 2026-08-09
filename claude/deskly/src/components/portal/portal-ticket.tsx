@@ -78,7 +78,7 @@ export function PortalTicket({
     }
   }
 
-  const accent = workspace.brandColor ?? "#4f46e5";
+  const accent = workspace.brandColor ?? "#1e1e1e";
 
   return (
     <div className="min-h-dvh bg-background">

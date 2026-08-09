@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
  * Embed with:
  *   <script src="https://your-deskly/widget.js"
  *           data-workspace="acme"
- *           data-color="#4f46e5"
+ *           data-color="#1e1e1e"
  *           data-label="Support"></script>
  *
  * It renders inside a shadow root so the host page's CSS cannot affect it and
@@ -30,7 +30,7 @@ export async function GET() {
   }
 
   var endpoint = ${JSON.stringify(`${appUrl}/api/inbound/form`)};
-  var color = current.getAttribute("data-color") || "#4f46e5";
+  var color = current.getAttribute("data-color") || "#1e1e1e";
   var label = current.getAttribute("data-label") || "Support";
   var title = current.getAttribute("data-title") || "How can we help?";
   var categories = (current.getAttribute("data-categories") || "")

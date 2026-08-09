@@ -21,7 +21,7 @@ creates the database, writes a `.env` with a generated `APP_SECRET`, applies
 the migrations and seeds a demo workspace. It is safe to run twice — every
 step checks before it acts, and an existing `.env` is left alone.
 
-Sign in as **priya@acme.test** / **deskly123**.
+Sign in as **yogabalajirr@gmail.com** / **deskly123**.
 
 For the desktop app:
 

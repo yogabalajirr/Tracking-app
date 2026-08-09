@@ -214,6 +214,41 @@ full-text search.
 
 ---
 
+## Colour: "Sharp edge", with status doing the talking
+
+The palette is four stops — `#898989`, `#D9D9D9`, `#FF4D4D`, `#4DFFBC`. Greys
+carry every structural job; the red and the mint are spent only on state.
+
+That split is why it suits this product. A support queue has exactly two poles
+worth shouting about — an SLA breaching and an SLA met — so the two vivid hues
+mean something. Keeping the primary button neutral graphite rather than
+coloured is what leaves them room to register.
+
+Three places the four stops could not be used literally, each checked rather
+than eyeballed:
+
+- **Text.** `#898989` reaches 3.5:1 on white — fine for a control border, which
+  WCAG 1.4.11 puts at 3:1, and a failure for body copy at 4.5:1. So `--border`
+  and `--input` are different tokens with different values, and muted text uses
+  an interpolated `#6b6b6b`.
+- **Light mode.** `#FF4D4D` is 3.3:1 on white and `#4DFFBC` is 1.28:1 —
+  effectively invisible. Each mode therefore gets its own step of the same hue:
+  darkened for the light surface, the palette values themselves on the dark
+  one, where they were always going to look best. Dark mode is chosen, not
+  inverted.
+- **Charts.** The obvious move is red vs mint for the two series. It was
+  rejected on evidence: the palette validator scores that pair ΔE 7.6 for
+  deuteranopia — inside the marginal 6–8 band — where the existing blue/orange
+  scores 24.7. And red and mint already mean "breached" and "met" here, so a
+  red line would read as bad news rather than as a series. Both series colours
+  pass all six checks against their own surface.
+
+A three-state SLA also needs a colour the palette does not carry, so amber is
+retained for the 75% warning; red and mint would otherwise have nothing between
+them.
+
+---
+
 ## Reports are SQL, not application code
 
 `src/lib/reports.ts` uses `$queryRaw` with `generate_series` and

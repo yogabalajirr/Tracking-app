@@ -33,7 +33,9 @@ function createWindow(url) {
     // Traffic lights over the app's own header, which is what the inbox
     // layout is built for.
     titleBarStyle: "hiddenInset",
-    backgroundColor: nativeTheme.shouldUseDarkColors ? "#12151c" : "#fbfbfd",
+    // Matches --background in globals.css, so the window never flashes a
+    // colour the app does not use.
+    backgroundColor: nativeTheme.shouldUseDarkColors ? "#1e1e1e" : "#f4f4f4",
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,

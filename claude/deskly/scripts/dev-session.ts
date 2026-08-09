@@ -2,7 +2,7 @@
  * Prints a valid session cookie for a seeded user, so the API can be exercised
  * from curl or a script without driving the login form.
  *
- *   npm run dev:session -- priya@acme.test
+ *   npm run dev:session -- yogabalajirr@gmail.com
  *
  * Development helper only — it mints a real session, so never run it against a
  * production database.
@@ -12,7 +12,7 @@ import { prisma } from "../src/lib/db";
 import { hashToken, randomToken } from "../src/lib/tokens";
 
 async function main() {
-  const email = process.argv[2] ?? "priya@acme.test";
+  const email = process.argv[2] ?? "yogabalajirr@gmail.com";
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {

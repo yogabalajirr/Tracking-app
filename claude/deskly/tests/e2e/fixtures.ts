@@ -9,7 +9,7 @@ import { test as base, expect, type Page } from "@playwright/test";
 
 export const DEMO = {
   subdomain: "acme",
-  owner: { email: "priya@acme.test", name: "Priya Sharma" },
+  owner: { email: "yogabalajirr@gmail.com", name: "yogabalaji" },
   admin: { email: "arjun@acme.test", name: "Arjun Mehta" },
   agent: { email: "sara@acme.test", name: "Sara Iyer" },
   password: "deskly123",

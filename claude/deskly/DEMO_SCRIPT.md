@@ -1,7 +1,7 @@
 # Demo script
 
 Ten steps, about five minutes. Run `npm run setup:mac && npm run dev`, plus
-`npm run worker` in a second terminal, then sign in as **priya@acme.test** /
+`npm run worker` in a second terminal, then sign in as **yogabalajirr@gmail.com** /
 **deskly123**.
 
 1. **The queue.** Open `/inbox`. Twenty tickets across every status, each with

@@ -39,7 +39,7 @@ const patchSchema = z.object({
   name: z.string().trim().min(1, "Give your workspace a name.").max(120).optional(),
   brandColor: z
     .string()
-    .regex(/^#[0-9a-f]{6}$/i, "Use a hex colour like #4f46e5.")
+    .regex(/^#[0-9a-f]{6}$/i, "Use a hex colour like #1e1e1e.")
     .nullish(),
   logoUrl: z.string().url("That doesn't look like a URL.").nullish(),
   timezone: z

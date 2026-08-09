@@ -237,7 +237,7 @@ function buildHtml(input: {
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0" />
       <div style="font-size:12px;color:#6b7280">
         ${input.ticketNumber ? `Ticket #${input.ticketNumber} · ` : ""}${escapeHtml(input.workspaceName)}
-        ${input.portalLink ? `<br /><a href="${input.portalLink}" style="color:#4f46e5">View or reply online</a> — or just reply to this email.` : ""}
+        ${input.portalLink ? `<br /><a href="${input.portalLink}" style="color:#1e1e1e">View or reply online</a> — or just reply to this email.` : ""}
       </div>
     </div>
   </body>

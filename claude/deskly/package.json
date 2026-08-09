@@ -36,7 +36,8 @@
     "dist:mac": "npm run build:desktop && electron-builder --mac",
     "setup:mac": "bash scripts/mac-setup.sh",
     "test:electron": "node --test tests/electron/*.test.mjs",
-    "icon": "node scripts/render-icon.mjs"
+    "icon": "node scripts/render-icon.mjs",
+    "demo:video": "node scripts/record-demo.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",

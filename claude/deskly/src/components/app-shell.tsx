@@ -52,6 +52,11 @@ export function AppShell({
     setMobileOpen(false);
   }
 
+  /** Treated as "no custom brand" so the mark follows the theme. */
+  const DEFAULT_BRAND = "#1e1e1e";
+  const brand = user.workspace.brandColor?.toLowerCase();
+  const customBrand = brand && brand !== DEFAULT_BRAND ? brand : null;
+
   const links = NAV.filter((item) => can(user.role, item.permission));
 
   return (
@@ -70,9 +75,18 @@ export function AppShell({
           </Button>
 
           <Link href="/inbox" className="flex items-center gap-2 font-semibold">
+            {/*
+              A workspace that has kept the default brand colour gets the theme
+              token, which flips with the mode. Painting the default value
+              inline instead would make the mark vanish into the dark header,
+              since the default *is* the dark surface colour.
+            */}
             <span
-              className="grid size-7 place-items-center rounded-md text-primary-foreground"
-              style={{ backgroundColor: user.workspace.brandColor ?? undefined }}
+              className={cn(
+                "grid size-7 place-items-center rounded-md text-primary-foreground",
+                customBrand ? "" : "bg-primary",
+              )}
+              style={customBrand ? { backgroundColor: customBrand } : undefined}
             >
               <Headset className="size-4" />
             </span>
