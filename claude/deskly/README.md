@@ -11,6 +11,7 @@ Runs as a web app or as a native macOS app.
 ## Quick start (macOS)
 
 ```bash
+cd claude/deskly
 npm run setup:mac
 npm run dev          # http://localhost:3000
 ```
@@ -28,6 +29,11 @@ For the desktop app:
 npm run desktop      # build + launch
 npm run dist:mac     # dist/Deskly-<version>-{arm64,x64}.dmg
 ```
+
+`dist:mac` only runs on macOS — electron-builder shells out to `sips`,
+`hdiutil` and `codesign`. Without a Mac, run the
+**Deskly - Build macOS dmg** workflow in GitHub Actions; it builds on a macOS
+runner and uploads the `.dmg` as an artifact.
 
 ### Other platforms
 

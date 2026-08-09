@@ -248,9 +248,15 @@ test while the real thing leaked.
 - **The live AI path is untested.** No API key was available in the build
   environment, so `verify:ai` has only been exercised on its no-key branch.
   The live branch is written and typechecked, not run.
-- **The `.dmg` has never been built.** Packaging is verified on Linux, for both
-  the shell and a fully packaged app — including catching two bugs that way —
-  but `electron-builder --mac`, code signing and notarisation need macOS.
+- **The `.dmg` has not been built.** Packaging is verified on Linux for both
+  the Electron shell and a fully packaged app — which is how two packaging bugs
+  were caught — and `electron-builder --mac` gets as far as laying out
+  `Deskly.app` for arm64 and x64 before failing: the dmg step needs `sips` and
+  `hdiutil`, and signing needs `codesign`. All three are macOS-only, so there
+  is no workaround on Linux. The `Deskly - Build macOS dmg` GitHub Actions
+  workflow runs the same command on a macOS runner and uploads the artifact.
+  It builds unsigned (ad-hoc signature only) until Apple Developer credentials
+  are added as repository secrets.
 - **Single-process assumptions**: the event bus and rate limiter are
   in-memory (see above).
 - **No attachment upload UI.** Storage, the download route and the size and
