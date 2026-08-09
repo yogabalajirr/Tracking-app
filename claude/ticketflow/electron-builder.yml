@@ -1,0 +1,77 @@
+# electron-builder configuration for the TicketFlow macOS app.
+#
+#   npm run dist:mac      → dist/TicketFlow-<version>-{arm64,x64}.dmg
+#
+# Run `npm run build:desktop` first (dist:mac does it for you): the payload
+# under .next/standalone is what actually gets shipped.
+
+appId: com.ticketflow.support
+productName: TicketFlow
+copyright: Copyright © 2026 TicketFlow
+
+directories:
+  output: dist
+  buildResources: build
+
+# Only the shell and the built server travel with the app. The Next source,
+# tests and dev tooling stay behind.
+files:
+  - electron/**/*
+  - package.json
+  - "!**/*.map"
+
+# The standalone server goes in as a resource rather than inside the asar:
+# Node spawns it as a child process, so it has to exist as real files on disk.
+extraResources:
+  - from: .next/standalone
+    to: standalone
+    filter:
+      - "**/*"
+      # Next's trace pulls .env into the standalone output. It holds this
+      # machine's APP_SECRET and database credentials and must never ship.
+      - "!.env"
+      - "!.env.*"
+      - "!**/*.map"
+      # Dev-only baggage the trace also picks up.
+      - "!tests/**"
+      - "!storage/**"
+
+  # node_modules needs its own entry: electron-builder strips node_modules out
+  # of a directory copy, which silently yields an app that cannot start. Naming
+  # the directory as the source is what gets it through.
+  - from: .next/standalone/node_modules
+    to: standalone/node_modules
+    filter:
+      - "**/*"
+      - "!**/*.map"
+
+asar: true
+
+mac:
+  category: public.app-category.productivity
+  # A PNG is enough — electron-builder generates the .icns at package time.
+  icon: build/icon.png
+  target:
+    - target: dmg
+      arch:
+        - arm64
+        - x64
+  # The app talks only to localhost and (optionally) the Anthropic API, so it
+  # needs no camera, microphone or file-access entitlements.
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  extendInfo:
+    NSHumanReadableCopyright: Copyright © 2026 TicketFlow
+
+dmg:
+  title: TicketFlow ${version}
+  contents:
+    - x: 140
+      y: 200
+      type: file
+    - x: 400
+      y: 200
+      type: link
+      path: /Applications

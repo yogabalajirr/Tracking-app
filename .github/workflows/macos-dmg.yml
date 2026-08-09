@@ -1,0 +1,84 @@
+name: TicketFlow - Build macOS dmg
+
+# Building a .dmg genuinely requires macOS: electron-builder shells out to
+# `sips`, `hdiutil` and `codesign`, none of which exist on Linux or Windows.
+# This runs the same `npm run dist:mac` on a real macOS runner and uploads the
+# result, so a .dmg can be produced without owning a Mac.
+
+on:
+  workflow_dispatch:
+    inputs:
+      arch:
+        description: Architectures to build
+        type: choice
+        default: both
+        options: [both, arm64, x64]
+  push:
+    tags:
+      - "ticketflow-v*"
+
+permissions:
+  contents: read
+
+jobs:
+  dmg:
+    # macos-14 is Apple silicon and can produce both arm64 and x64 targets.
+    runs-on: macos-14
+    timeout-minutes: 45
+
+    defaults:
+      run:
+        working-directory: claude/ticketflow
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: claude/ticketflow/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the app and the desktop payload
+        # `next build` reads the environment through a schema that validates at
+        # import time, so it needs syntactically valid values even though
+        # nothing here connects to a database. Real values come from the user's
+        # .env at runtime; none of these are secrets.
+        env:
+          DATABASE_URL: postgresql://placeholder@localhost:5432/placeholder
+          APP_SECRET: build-time-placeholder-not-a-real-secret
+          APP_URL: http://127.0.0.1:4123
+          NEXT_PUBLIC_APP_URL: http://127.0.0.1:4123
+          NEXT_PUBLIC_EMAIL_DOMAIN: ticketflow.local
+        run: npm run build:desktop
+
+      - name: Package the dmg
+        env:
+          # No Apple Developer certificate configured, so skip the signing
+          # attempt; electron-builder still applies an ad-hoc signature, which
+          # is what lets the app launch on Apple silicon at all. Users will see
+          # a Gatekeeper prompt and need to right-click → Open the first time.
+          #
+          # To ship a signed and notarised build, add CSC_LINK (base64 .p12),
+          # CSC_KEY_PASSWORD, APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD and
+          # APPLE_TEAM_ID as repository secrets and drop this line.
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: |
+          case "${{ github.event.inputs.arch || 'both' }}" in
+            arm64) npx electron-builder --mac --arm64 ;;
+            x64)   npx electron-builder --mac --x64 ;;
+            *)     npx electron-builder --mac ;;
+          esac
+
+      - name: Show what was produced
+        run: ls -lh dist/*.dmg
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ticketflow-macos-dmg
+          path: claude/ticketflow/dist/*.dmg
+          if-no-files-found: error
+          retention-days: 14

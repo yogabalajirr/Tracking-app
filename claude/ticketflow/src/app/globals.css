@@ -1,0 +1,295 @@
+@import "tailwindcss";
+
+/*
+ * Dark mode is class-driven (`<html class="dark">`) rather than
+ * media-query-driven, so the in-app theme toggle can override the OS setting.
+ * ThemeScript in layout.tsx sets the class before first paint.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * "Sharp edge" — grey base, with one red and one blue-green doing all the
+ * signalling.
+ *
+ *   #898989   #D9D9D9   #FF4D4D   #4DFFBC
+ *
+ * The fit here is unusually good: this product already has exactly two status
+ * poles worth shouting about — an SLA breaching and an SLA met — so the red and
+ * the mint carry meaning rather than decoration. Everything structural stays
+ * grey, which is what makes them read.
+ *
+ * Two things the four stops cannot supply on their own, and why:
+ *
+ *   Text.  #898989 reaches only 3.5:1 on white, so it is fine for borders and
+ *          icons but fails AA for body copy. Darker greys are interpolated for
+ *          text, and the palette greys keep the structural jobs.
+ *
+ *   Steps. #FF4D4D is 3.3:1 on white and #4DFFBC is 1.28:1 — invisible as
+ *          text or as a thin mark. So each mode gets its own step of the same
+ *          hue: darkened for the light surface, the palette values themselves
+ *          on the dark one, where they are exactly right. Dark mode is chosen,
+ *          never an inversion.
+ *
+ * A three-state SLA needs a third colour the palette does not carry, so amber
+ * is retained for the 75% warning. Red for breached and mint for met would
+ * otherwise have nothing between them.
+ */
+:root {
+  /* The palette, verbatim. */
+  --grey-mid: #898989;
+  --grey-light: #d9d9d9;
+  --red: #ff4d4d;
+  --mint: #4dffbc;
+
+  /* Interpolated greys, for surfaces and text the four stops do not cover. */
+  --grey-25: #fafafa;
+  --grey-50: #f4f4f4;
+  --grey-100: #ececec;
+  --grey-150: #e4e4e4;
+  --grey-600: #6b6b6b;
+  --grey-800: #333333;
+  --grey-850: #2b2b2b;
+  --grey-875: #262626;
+  --grey-900: #1e1e1e;
+
+  --background: var(--grey-50);
+  --foreground: var(--grey-900);
+
+  --card: #ffffff;
+  --card-foreground: var(--grey-900);
+
+  --popover: #ffffff;
+  --popover-foreground: var(--grey-900);
+
+  /* The primary action stays neutral so the red and the mint keep their edge. */
+  --primary: var(--grey-900);
+  --primary-foreground: #ffffff;
+
+  --secondary: var(--grey-100);
+  --secondary-foreground: var(--grey-900);
+
+  --muted: var(--grey-100);
+  /* #6b6b6b is the lightest grey that still clears 4.5:1 on white. */
+  --muted-foreground: var(--grey-600);
+
+  --accent: var(--grey-150);
+  --accent-foreground: var(--grey-900);
+
+  /* The palette red and mint, stepped down to stay legible on a light surface. */
+  --destructive: #d93b3b;
+  --destructive-foreground: #ffffff;
+
+  --success: #0b7052;
+  --success-foreground: #ffffff;
+
+  --warning: oklch(0.66 0.15 68);
+  --warning-foreground: oklch(0.24 0.03 68);
+
+  /*
+   * Two different jobs, so two different values. `--border` divides content and
+   * may be quiet; `--input` outlines a control, which WCAG 1.4.11 requires to
+   * clear 3:1 against its surface — #d9d9d9 manages only 1.3:1, #898989 makes
+   * 3.5:1.
+   */
+  --border: var(--grey-light);
+  --input: var(--grey-mid);
+  --ring: var(--grey-900);
+
+  /* Internal notes read as "not sent to the customer" at a glance. */
+  --note: oklch(0.97 0.05 95);
+  --note-border: oklch(0.85 0.09 90);
+  --note-foreground: oklch(0.35 0.06 75);
+
+  --radius: 0.625rem;
+
+  /*
+   * Chart series stay blue/orange rather than adopting the palette pair. Two
+   * reasons, both checked rather than assumed: red↔mint scores ΔE 7.6 for
+   * deuteranopia (the validator's marginal band) where blue↔orange scores 24.7,
+   * and red and mint already mean "breached" and "met" here — a red line would
+   * read as bad news rather than as a series. Both pairs below pass all six
+   * checks against their own surface.
+   */
+  --viz-series-1: #2a78d6;
+  --viz-series-2: #eb6834;
+}
+
+.dark {
+  --background: var(--grey-900);
+  --foreground: #ffffff;
+
+  --card: var(--grey-875);
+  --card-foreground: #ffffff;
+
+  --popover: var(--grey-850);
+  --popover-foreground: #ffffff;
+
+  --primary: #ffffff;
+  --primary-foreground: var(--grey-900);
+
+  --secondary: var(--grey-800);
+  --secondary-foreground: #ffffff;
+
+  --muted: var(--grey-800);
+  /* The palette's mid grey is a comfortable 6.6:1 on this surface. */
+  --muted-foreground: var(--grey-mid);
+
+  --accent: #3d3d3d;
+  --accent-foreground: #ffffff;
+
+  /* On a dark surface the palette values need no adjustment — this is where
+     they were always going to look best. */
+  --destructive: var(--red);
+  --destructive-foreground: var(--grey-900);
+
+  --success: var(--mint);
+  --success-foreground: var(--grey-900);
+
+  --warning: oklch(0.78 0.15 72);
+  --warning-foreground: oklch(0.2 0.02 70);
+
+  --border: #3d3d3d;
+  --input: #4f4f4f;
+  --ring: #ffffff;
+
+  --note: oklch(0.28 0.045 85);
+  --note-border: oklch(0.40 0.07 85);
+  --note-foreground: oklch(0.88 0.07 90);
+
+  /* Same two hues, re-stepped for the dark surface. */
+  --viz-series-1: #3987e5;
+  --viz-series-2: #d95926;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-note: var(--note);
+  --color-note-border: var(--note-border);
+  --color-note-foreground: var(--note-foreground);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* WCAG AA: a visible, consistent focus ring on every interactive element. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklch, var(--primary) 25%, transparent);
+  }
+}
+
+@layer utilities {
+  /* Visible only to screen readers. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--muted) 25%,
+      color-mix(in oklch, var(--muted) 60%, var(--background)) 50%,
+      var(--muted) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+
+  @keyframes skeleton-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Thin, unobtrusive scrollbars for the dense inbox panes. */
+  .scroll-slim {
+    /*
+     * `position: relative` is not cosmetic here. `.sr-only` is absolutely
+     * positioned, so without a positioned ancestor those 1px spans resolve
+     * against the initial containing block and escape this container's clip.
+     * Deep in a long queue that puts one of them hundreds of pixels below the
+     * fold, which makes the *document* scrollable even though the app shell is
+     * exactly viewport height — and then any scrollIntoView() drags the whole
+     * fixed-height layout up, leaving a blank band under it.
+     */
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .scroll-slim::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scroll-slim::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 4px;
+  }
+  .scroll-slim::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
