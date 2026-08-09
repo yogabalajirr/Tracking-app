@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, CheckCircle2, PanelRightClose, PanelRightOpen } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Info, PanelRightClose, PanelRightOpen, X } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/primitives";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,7 @@ export function TicketDetailView({
   const router = useRouter();
   const [ticket, setTicket] = React.useState(initialTicket);
   const [detailsOpen, setDetailsOpen] = React.useState(true);
+  const [sheetOpen, setSheetOpen] = React.useState(false);
   const [composerMode, setComposerMode] = React.useState<"reply" | "note">("reply");
 
   const composerRef = React.useRef<HTMLTextAreaElement>(null);
@@ -47,6 +48,7 @@ export function TicketDetailView({
   if (loadedTicket !== initialTicket) {
     setLoadedTicket(initialTicket);
     setTicket(initialTicket);
+    setSheetOpen(false);
   }
 
   const writable = can(currentUser.role, "tickets.write");
@@ -163,6 +165,22 @@ export function TicketDetailView({
               >
                 {detailsOpen ? <PanelRightClose /> : <PanelRightOpen />}
               </Button>
+
+              {/*
+                Below lg the sidebar has nowhere to sit, so it becomes a sheet.
+                Without this, priority, assignee, tags and the portal link are
+                simply unreachable on a phone.
+              */}
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setSheetOpen(true)}
+                aria-label="Show ticket details"
+                title="Ticket details"
+                className="lg:hidden"
+              >
+                <Info />
+              </Button>
             </div>
           </div>
         </header>
@@ -215,6 +233,46 @@ export function TicketDetailView({
           onRefresh={refresh}
         />
       </aside>
+
+      {/* Same pane, presented as a sheet on small screens. */}
+      {sheetOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <button
+            type="button"
+            aria-label="Close ticket details"
+            onClick={() => setSheetOpen(false)}
+            className="absolute inset-0 bg-foreground/30"
+          />
+          <div
+            role="dialog"
+            aria-label="Ticket details"
+            className="absolute inset-y-0 right-0 flex w-[min(20rem,90vw)] flex-col bg-background shadow-xl"
+          >
+            <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
+              <h2 className="text-sm font-semibold">Details</h2>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setSheetOpen(false)}
+                aria-label="Close ticket details"
+              >
+                <X />
+              </Button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto scroll-slim">
+              <DetailsPane
+                ticket={ticket}
+                meta={meta}
+                currentUser={currentUser}
+                onPatch={patch}
+                readOnly={!writable}
+                aiEnabled={aiEnabled}
+                onRefresh={refresh}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
